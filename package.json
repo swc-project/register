@@ -1,0 +1,24 @@
+{
+  "name": "@swc/register",
+  "version": "0.1.0",
+  "description": "Super fast alternative for babel-register",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/swc-project/register.git"
+  },
+  "keywords": [
+    "swc",
+    "typescript",
+    "babel"
+  ],
+  "author": "강동윤 <kdy1997.dev@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/swc-project/register/issues"
+  },
+  "homepage": "https://github.com/swc-project/register#readme"
+}
