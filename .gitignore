@@ -99,3 +99,7 @@ public
 
 # TernJS port file
 .tern-port
+
+package-lock.json
+lib/
+.DS_Store

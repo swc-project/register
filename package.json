@@ -4,7 +4,9 @@
   "description": "Super fast alternative for babel-register",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "prepare": "npm run build",
+    "build": "tsc -d"
   },
   "repository": {
     "type": "git",
@@ -20,5 +22,25 @@
   "bugs": {
     "url": "https://github.com/swc-project/register/issues"
   },
-  "homepage": "https://github.com/swc-project/register#readme"
+  "homepage": "https://github.com/swc-project/register#readme",
+  "browser": {
+    "./lib/node.js": "./lib/browser.js"
+  },
+  "peerDependencies": {
+    "@swc/core": "^1.0.46"
+  },
+  "devDependencies": {
+    "@swc/core": "^1.0.46",
+    "@types/lodash": "^4.14.144",
+    "@types/node": "^12.11.1",
+    "@types/source-map-support": "^0.5.0",
+    "browserify": "^16.5.0",
+    "jest": "^24.9.0"
+  },
+  "dependencies": {
+    "lodash": "^4.17.15",
+    "pirates": "^4.0.1",
+    "source-map-support": "^0.5.13",
+    "typescript": "^3.6.4"
+  }
 }
