@@ -89,7 +89,7 @@ function compileHook(code: string, filename: string) {
 
 function hookExtensions(exts: string[]) {
   if (piratesRevert) piratesRevert();
-  piratesRevert = addHook(compileHook, { exts, ignoreNodeModules: false });
+  piratesRevert = addHook(compileHook, { exts, ignoreNodeModules: true });
 }
 
 export function revert() {

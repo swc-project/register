@@ -1,1 +1,1 @@
-export const a = 100;
+import * as _ from "lodash";

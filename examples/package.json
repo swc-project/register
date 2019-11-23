@@ -12,6 +12,7 @@
   "dependencies": {
     "@swc/cli": "^0.1.18",
     "@swc/core": "^1.0.52",
-    "@swc/register": "file:../"
+    "@swc/register": "file:../",
+    "lodash": "^4.17.15"
   }
 }
