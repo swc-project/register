@@ -1,8 +1,8 @@
 {
   "name": "@swc/register",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Super fast alternative for babel-register",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
     "test": "jest",
     "prepare": "npm run build",
