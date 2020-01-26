@@ -32,13 +32,16 @@
   "devDependencies": {
     "@swc/core": "^1.0.46",
     "@types/lodash": "^4.14.144",
+    "@types/lodash.clonedeep": "^4.5.6",
+    "@types/lodash.escaperegexp": "^4.1.6",
     "@types/node": "^12.11.1",
     "@types/source-map-support": "^0.5.0",
     "browserify": "^16.5.0",
     "jest": "^24.9.0"
   },
   "dependencies": {
-    "lodash": "^4.17.15",
+    "lodash.clonedeep": "^4.5.0",
+    "lodash.escaperegexp": "^4.1.2",
     "pirates": "^4.0.1",
     "source-map-support": "^0.5.13",
     "typescript": "^3.6.4"

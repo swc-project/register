@@ -1,6 +1,6 @@
-import deepClone from "lodash/cloneDeep";
+import deepClone from "lodash.clonedeep";
 import sourceMapSupport from "source-map-support";
-import escapeRegExp from "lodash/escapeRegExp";
+import escapeRegExp from "lodash.escaperegexp";
 import * as swc from "@swc/core";
 import { addHook } from "pirates";
 import fs from "fs";
