@@ -1,6 +1,6 @@
 {
   "name": "@swc/register",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Super fast alternative for babel-register",
   "main": "lib/index.js",
   "scripts": {
@@ -45,5 +45,8 @@
     "lodash.escaperegexp": "^4.1.2",
     "pirates": "^4.0.1",
     "source-map-support": "^0.5.13"
+  },
+  "bin": {
+    "swc-node": "./bin/swc-node"
   }
 }
