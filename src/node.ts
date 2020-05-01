@@ -1,10 +1,10 @@
-import deepClone from "lodash.clonedeep";
-import sourceMapSupport from "source-map-support";
-import escapeRegExp from "lodash.escaperegexp";
 import * as swc from "@swc/core";
-import { addHook } from "pirates";
 import fs from "fs";
+import deepClone from "lodash.clonedeep";
+import escapeRegExp from "lodash.escaperegexp";
 import path from "path";
+import { addHook } from "pirates";
+import sourceMapSupport from "source-map-support";
 
 export interface InputOptions extends TransformOptions {
   extensions?: string[];
@@ -61,7 +61,7 @@ function compile(code: string | any, filename: string) {
   delete opts.ignore;
   const output: swc.Output = swc.transformSync(code, {
     ...opts,
-    sourceMaps: opts.sourceMaps === undefined ? "both" : opts.sourceMaps
+    sourceMaps: opts.sourceMaps === undefined ? "inline" : opts.sourceMaps
   });
 
   if (output.map) {
