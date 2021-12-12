@@ -1,7 +1,7 @@
 import * as swc from "@swc/core";
 import fs from "fs";
 import deepClone from "lodash.clonedeep";
-import escapeRegExp from "lodash.escaperegexp";
+import { escapeRegExp, pathPatternToRegex } from "./util";
 import path from "path";
 import { addHook } from "pirates";
 import sourceMapSupport from "source-map-support";
@@ -10,15 +10,17 @@ export interface InputOptions extends TransformOptions {
   extensions?: string[];
 }
 
+/**
+ * Babel has built-in ignore & only support while @swc/core doesn't. So let's make our own!
+ */
+
 export interface TransformOptions extends swc.Options {
   only?: FilePattern;
   ignore?: FilePattern;
 }
 
-/**
- * TODO:
- */
-export type FilePattern = any;
+// https://github.com/babel/babel/blob/7e50ee2d823ebc9e50eb3575beb77666214edf8e/packages/babel-core/src/config/validation/options.ts#L201-L202
+export type FilePattern = ReadonlyArray<string | ((filename: string, { dirname }: { dirname: string }) => any) | RegExp>;
 
 const maps: { [src: string]: string } = {};
 let transformOpts: TransformOptions = {};
@@ -89,7 +91,7 @@ function compileHook(code: string, filename: string) {
 
 function hookExtensions(exts: readonly string[]) {
   if (piratesRevert) piratesRevert();
-  piratesRevert = addHook(compileHook, { exts: exts as string[], ignoreNodeModules: false });
+  piratesRevert = addHook(compileHook, { exts: exts as string[], ignoreNodeModules: false, matcher: shouldIgnoreFactory(transformOpts.ignore, transformOpts.only) });
 }
 
 export function revert() {
@@ -128,13 +130,75 @@ export default function register(opts: InputOptions = {}) {
       // Ignore any node_modules inside the current working directory.
       new RegExp(
         "^" +
-          escapeRegExp(cwd) +
-          "(?:" +
-          path.sep +
-          ".*)?" +
-          escapeRegExp(path.sep + "node_modules" + path.sep),
+        escapeRegExp(cwd) +
+        "(?:" +
+        path.sep +
+        ".*)?" +
+        escapeRegExp(path.sep + "node_modules" + path.sep),
         "i"
       )
     ];
   }
 }
+
+
+/**
+ * https://github.com/babel/babel/blob/7acc68a86b70c6aadfef28e10e83d0adb2523807/packages/babel-core/src/config/config-chain.ts
+ *
+ * Tests if a filename should be ignored based on "ignore" and "only" options.
+ */
+function shouldIgnoreFactory(ignore: FilePattern | undefined | null, only: FilePattern | undefined | null) {
+  return (filename: string, dirname?: string) => {
+    if (!dirname) {
+      dirname = path.dirname(filename);
+    }
+    return shouldIgnore(ignore, only, filename, dirname);
+  };
+}
+
+function shouldIgnore(
+  ignore: FilePattern | undefined | null,
+  only: FilePattern | undefined | null,
+  filename: string,
+  dirname: string,
+): boolean {
+  if (ignore && matchPattern(ignore, dirname, filename)) {
+    return true;
+  }
+
+  if (only && !matchPattern(only, dirname, filename)) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * https://github.com/babel/babel/blob/7acc68a86b70c6aadfef28e10e83d0adb2523807/packages/babel-core/src/config/config-chain.ts
+ *
+ * Returns result of calling function with filename if pattern is a function.
+ * Otherwise returns result of matching pattern Regex with filename.
+ */
+function matchPattern(
+  patterns: FilePattern,
+  dirname: string,
+  pathToTest: string
+): boolean {
+  return patterns.some(pattern => {
+    if (typeof pattern === "function") {
+      return Boolean(pattern(pathToTest, { dirname }));
+    }
+
+    if (typeof pathToTest !== "string") {
+      throw new Error(
+        `Configuration contains string/RegExp file pattern, but no filename was provided.`,
+      );
+    }
+
+    if (typeof pattern === "string") {
+      pattern = pathPatternToRegex(pattern, dirname);
+    }
+    return pattern.test(pathToTest);
+  });
+}
+
