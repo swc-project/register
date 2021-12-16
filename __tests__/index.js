@@ -1,35 +1,9 @@
 const fs = require("fs");
 const path = require("path");
 
-let currentHook;
-let currentOptions;
-let sourceMapSupport = false;
-
 const registerFile = require.resolve("../lib/node");
 const testFile = require.resolve("./fixtures/swcrc/es2015");
 const testFileContent = fs.readFileSync(testFile);
-
-jest.mock("pirates", () => {
-  return {
-    addHook(hook, opts) {
-      currentHook = hook;
-      currentOptions = opts;
-
-      return () => {
-        currentHook = null;
-        currentOptions = null;
-      };
-    }
-  };
-});
-
-jest.mock("source-map-support", () => {
-  return {
-    install() {
-      sourceMapSupport = true;
-    }
-  };
-});
 
 const defaultOptions = {
   exts: [".js", ".jsx", ".es6", ".es", ".mjs", ".ts", ".tsx"],
@@ -37,6 +11,28 @@ const defaultOptions = {
 };
 
 describe("@swc/register", function() {
+  let currentHook, currentOptions, sourceMapSupport;
+
+  const mocks = {
+    ['pirates']: {
+      addHook(hook, opts) {
+        currentHook = hook;
+        currentOptions = opts;
+
+        return () => {
+          currentHook = null;
+          currentOptions = null;
+        };
+      },
+    },
+
+    ['source-map-support']: {
+      install() {
+        sourceMapSupport = true;
+      },
+    },
+  };
+
   let swcRegister;
 
   function setupRegister(config = { swcrc: false }) {
@@ -57,13 +53,19 @@ describe("@swc/register", function() {
     }
   }
 
-  afterEach(() => {
-    revertRegister();
+  beforeEach(() => {
     currentHook = null;
     currentOptions = null;
     sourceMapSupport = false;
     jest.resetModules();
   });
+
+  afterEach(() => {
+    revertRegister();
+  });
+
+  jest.doMock("pirates", () => mocks["pirates"]);
+  jest.doMock("source-map-support", () => mocks["source-map-support"]);
 
   test("registers hook correctly", () => {
     setupRegister();
@@ -94,7 +96,7 @@ describe("@swc/register", function() {
       sourceMaps: true
     });
 
-    currentHook("const a = 1;", testFile);
+    currentHook("const a = 2;", testFile);
 
     expect(sourceMapSupport).toBe(true);
   });
@@ -105,7 +107,7 @@ describe("@swc/register", function() {
       sourceMaps: false
     });
 
-    currentHook("const a = 1;", testFile);
+    currentHook("const a = 3;", testFile);
 
     expect(sourceMapSupport).toBe(false);
   });
@@ -121,7 +123,7 @@ describe("@swc/register", function() {
 
     const result = currentHook(testFileContent, testFile);
 
-    expect(result.replace(/\n/g, "")).toBe("'use strict';require('assert');");
+    expect(result).toBe('"use strict";\nrequire("assert");\n');
   });
 
   test("hook transpiles with swcrc", () => {
@@ -132,6 +134,6 @@ describe("@swc/register", function() {
 
     const result = currentHook(testFileContent, testFile);
 
-    expect(result.replace(/\n/g, "")).toBe("'use strict';require('assert');");
+    expect(result).toBe('"use strict";\nrequire("assert");\n');
   });
 });

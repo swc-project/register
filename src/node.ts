@@ -49,7 +49,7 @@ function mtime(filename: string) {
 function compile(code: string | any, filename: string) {
   // merge in base options and resolve all the plugins and presets relative to this file
   const opts = {
-    sourceRoot: path.dirname(filename),
+    sourceRoot: path.dirname(filename) + path.sep,
     ...deepClone(transformOpts),
     filename
   };
@@ -61,7 +61,7 @@ function compile(code: string | any, filename: string) {
   delete opts.ignore;
   const output: swc.Output = swc.transformSync(code, {
     ...opts,
-    sourceMaps: opts.sourceMaps === undefined ? "inline" : opts.sourceMaps
+    sourceMaps: opts.sourceMaps === undefined ? true : opts.sourceMaps
   });
 
   if (output.map) {
@@ -89,14 +89,12 @@ function compileHook(code: string, filename: string) {
 
 function hookExtensions(exts: readonly string[]) {
   if (piratesRevert) piratesRevert();
-  piratesRevert = addHook(compileHook, { exts: exts as string[], ignoreNodeModules: true });
+  piratesRevert = addHook(compileHook, { exts: exts as string[], ignoreNodeModules: false });
 }
 
 export function revert() {
   if (piratesRevert) piratesRevert();
 }
-
-register();
 
 export default function register(opts: InputOptions = {}) {
   // Clone to avoid mutating the arguments object with the 'delete's below.
