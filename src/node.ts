@@ -91,7 +91,7 @@ function compileHook(code: string, filename: string) {
 
 function hookExtensions(exts: readonly string[]) {
   if (piratesRevert) piratesRevert();
-  piratesRevert = addHook(compileHook, { exts: exts as string[], ignoreNodeModules: false, matcher: shouldIgnoreFactory(transformOpts.ignore, transformOpts.only) });
+  piratesRevert = addHook(compileHook, { exts: exts as string[], ignoreNodeModules: false, matcher });
 }
 
 export function revert() {
@@ -147,30 +147,26 @@ export default function register(opts: InputOptions = {}) {
  *
  * Tests if a filename should be ignored based on "ignore" and "only" options.
  */
-function shouldIgnoreFactory(ignore: FilePattern | undefined | null, only: FilePattern | undefined | null) {
-  return (filename: string, dirname?: string) => {
-    if (!dirname) {
-      dirname = path.dirname(filename);
-    }
-    return shouldIgnore(ignore, only, filename, dirname);
-  };
+function matcher(filename: string, dirname?: string) {
+  if (!dirname) {
+    dirname = transformOpts.cwd || path.dirname(filename);
+  }
+  return shouldCompile(transformOpts.ignore, transformOpts.only, filename, dirname);
 }
 
-function shouldIgnore(
+function shouldCompile(
   ignore: FilePattern | undefined | null,
   only: FilePattern | undefined | null,
   filename: string,
   dirname: string,
 ): boolean {
   if (ignore && matchPattern(ignore, dirname, filename)) {
-    return true;
+    return false;
   }
-
   if (only && !matchPattern(only, dirname, filename)) {
-    return true;
+    return false;
   }
-
-  return false;
+  return true;
 }
 
 /**
@@ -198,7 +194,7 @@ function matchPattern(
     if (typeof pattern === "string") {
       pattern = pathPatternToRegex(pattern, dirname);
     }
-    return pattern.test(pathToTest);
+    return pattern.test(path.resolve(dirname, pathToTest));
   });
 }
 
