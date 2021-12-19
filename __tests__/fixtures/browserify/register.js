@@ -1,3 +1,3 @@
-require("@swc/register").default({
+require("../../..").default({
   ignore: false
 });
