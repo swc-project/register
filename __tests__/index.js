@@ -71,7 +71,9 @@ describe("@swc/register", function() {
     setupRegister();
 
     expect(typeof currentHook).toBe("function");
-    expect(currentOptions).toEqual(defaultOptions);
+    expect(currentOptions.exts).toEqual(defaultOptions.exts);
+    expect(currentOptions.ignoreNodeModules).toEqual(defaultOptions.ignoreNodeModules);
+    expect(typeof currentOptions.matcher).toBe("function");
   });
 
   test("unregisters hook correctly", () => {
@@ -135,5 +137,51 @@ describe("@swc/register", function() {
     const result = currentHook(testFileContent, testFile);
 
     expect(result).toBe('"use strict";\nrequire("assert");\n');
+  });
+
+  test("ignore node_modules by default", () => {
+    setupRegister();
+
+    expect(currentOptions.matcher('foo.js')).toBe(true);
+    expect(currentOptions.matcher('node_modules/foo.js')).toBe(false);
+    expect(currentOptions.matcher('subdir/node_modules/foo.js')).toBe(false);
+  });
+
+  test("only compile file under cwd", () => {
+    setupRegister();
+
+    expect(currentOptions.matcher('foo.js')).toBe(true);
+    expect(currentOptions.matcher('/foo.js')).toBe(false);
+  });
+
+  test("ignore", () => {
+    setupRegister({
+      ignore: [/ignore/, 'bar/*.js']
+    });
+
+    expect(currentOptions.matcher('foo.js')).toBe(true);
+    expect(currentOptions.matcher('ignore.js')).toBe(false);
+    expect(currentOptions.matcher('bar/a.js')).toBe(false);
+  });
+
+  test("only", () => {
+    setupRegister({
+      only: [/foo/, (filename) => filename.includes('bar')]
+    });
+
+    expect(currentOptions.matcher('foo.js')).toBe(true);
+    expect(currentOptions.matcher('bar.js')).toBe(true);
+    expect(currentOptions.matcher('baz.js')).toBe(false);
+  });
+
+  test("ignore & only", () => {
+    setupRegister({
+      ignore: [/bar/],
+      only: [/foo/, (filename) => filename.includes('bar')]
+    });
+
+    expect(currentOptions.matcher('foo.js')).toBe(true);
+    expect(currentOptions.matcher('bar.js')).toBe(false);
+    expect(currentOptions.matcher('baz.js')).toBe(false);
   });
 });
