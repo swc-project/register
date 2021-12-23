@@ -15,17 +15,19 @@ yarn add --dev @swc/core @swc/register
 ```
 
 ### Usage
-```bash
-require("@swc/register");
+
+```js
+require("@swc/register")({
+  extensions: [],
+  ignore: [],
+  only: [],
+  // And swc configuration
+  jsc: {},
+  env: {}
+});
 ```
 
-All subsequent files required by node will be transformed by swc. You can also
-call @swc/register directly from command line.
-
-```bash
-swc-node <filename>
-node -r '@swc/register' <filename>
-```
+All subsequent files required by node will be transformed by swc.
 
 &nbsp;
 
