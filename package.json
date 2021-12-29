@@ -1,6 +1,6 @@
 {
   "name": "@swc/register",
-  "version": "0.1.7",
+  "version": "0.1.9",
   "description": "Super fast alternative for babel-register",
   "main": "lib/index.js",
   "scripts": {
@@ -9,7 +9,9 @@
     "build": "tsc -d"
   },
   "jest": {
-    "testPathIgnorePatterns": ["fixtures"]
+    "testPathIgnorePatterns": [
+      "fixtures"
+    ]
   },
   "repository": {
     "type": "git",
