@@ -11,7 +11,7 @@ exports = module.exports = function(...args: InputOptions[]) {
 };
 exports.__esModule = true;
 
-const node = require("./node");
+const node = require("./nodeWrapper");
 const register = node.default;
 
 Object.assign(exports, node);
